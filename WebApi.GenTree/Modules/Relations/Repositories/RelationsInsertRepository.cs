@@ -2,7 +2,7 @@
 using GenTree.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApi.GenTree.Modules.Relations;
+namespace WebApi.GenTree.Modules.Relations.Repositories;
 
 public record RelationInsertRequest(Guid ChildId, Guid ParentId);
 
@@ -10,6 +10,7 @@ public interface IRelationsInsertRepository
 {
     public Task InsertChildAsync(RelationInsertRequest request);
 }
+
 public class RelationsInsertRepository(GenTreeContext context) : IRelationsInsertRepository
 {
     public async Task InsertChildAsync(RelationInsertRequest request)

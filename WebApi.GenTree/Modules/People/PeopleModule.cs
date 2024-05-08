@@ -1,4 +1,6 @@
-﻿namespace WebApi.GenTree.Modules.People;
+﻿using WebApi.GenTree.Modules.People.Repositories;
+
+namespace WebApi.GenTree.Modules.People;
 
 public static class PeopleModule
 {

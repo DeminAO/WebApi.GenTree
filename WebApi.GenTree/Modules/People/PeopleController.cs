@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.GenTree.Modules.People.Repositories;
 
 namespace WebApi.GenTree.Modules.People;
 
@@ -13,6 +14,7 @@ public class PeopleController
     {
         return repository.GetPeopleAsync(request);
     }
+
     [HttpPost]
     public Task<PersonInsertResult> InsertPeopleAsync(
         [FromServices] IPersonInsertRepository repository,

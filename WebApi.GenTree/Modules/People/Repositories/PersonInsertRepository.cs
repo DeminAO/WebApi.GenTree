@@ -1,8 +1,8 @@
 ﻿using GenTree.Domain;
 using GenTree.Domain.Entities;
-using WebApi.GenTree.Modules.Relations;
+using WebApi.GenTree.Modules.Relations.Repositories;
 
-namespace WebApi.GenTree.Modules.People;
+namespace WebApi.GenTree.Modules.People.Repositories;
 
 public record PersonInsertRequest(string Given, string Family, Guid? ParentId);
 public record PersonInsertResult(Guid Id);
