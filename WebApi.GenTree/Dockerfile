@@ -19,6 +19,8 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./WebApi.GenTree.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+ENV ConnectionStrings__DefaultConnection=Host=localhost;Port=5432;Database=NetrikaDb;Username=postgres;Password=test
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

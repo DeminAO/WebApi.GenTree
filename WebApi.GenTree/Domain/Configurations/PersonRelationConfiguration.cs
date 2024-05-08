@@ -21,5 +21,8 @@ class PersonRelationConfiguration : IEntityTypeConfiguration<PersonRelation>
             .HasPrincipalKey(x => x.Id)
             .HasForeignKey(x => x.DownPersonId)
             .IsRequired();
+
+        builder.HasIndex(x => x.DownPersonId);
+        builder.HasIndex(x => x.TopPersonId);
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GenTree.Domain;
 
-public class GenTreeContext : DbContext
+public class GenTreeContext(DbContextOptions<GenTreeContext> options) : DbContext(options)
 {
     /// <summary>
     /// Люди
