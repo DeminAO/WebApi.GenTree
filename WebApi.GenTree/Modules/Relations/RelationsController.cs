@@ -20,11 +20,13 @@ public class RelationsController
     /// <param name="request">Идентификатор прадеда</param>
     /// <returns></returns>
     [HttpPost]
-    public IAsyncEnumerable<PersonModel> GetPeopleByThirdLevelAsync(
+    public async Task<IEnumerable<PersonModel>> GetPeopleByThirdLevelAsync(
         [FromServices] IRelationsRepository repository,
+        [FromServices] IPeopleGetRepository peopleGetRepository,
         [FromBody] PeopleByThirdLevelRequest request)
     {
-        return repository.GetChildrenByLevelAsync(new(request.Id, 3));
+        var personIds = await repository.GetChildrenByLevelAsync(new(request.Id, 3));
+        return await peopleGetRepository.GetPeopleAsync(personIds);
     }
     
     /// <summary>

@@ -12,7 +12,7 @@ public interface IPeopleGetRepository
 {
     public IAsyncEnumerable<PersonModel> GetPeopleAsync(PeopleRequest request);
     public Task<PersonModel> GetPersonAsync(PersonRequest request);
-    public IAsyncEnumerable<PersonModel> GetPeopleAsync(IQueryable<Person> request);
+    public Task<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request);
 }
 public class PeopleGetRepository(GenTreeContext context) : IPeopleGetRepository
 {
@@ -25,9 +25,16 @@ public class PeopleGetRepository(GenTreeContext context) : IPeopleGetRepository
             .Take(request.Count);
         return Map(query).AsAsyncEnumerable();
     }
-    public IAsyncEnumerable<PersonModel> GetPeopleAsync(IQueryable<Person> request)
+
+    public Task<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request)
     {
-        return Map(request.OrderBy(x => x.Id)).AsAsyncEnumerable();
+        var ids = request.Select(x => x.Id).ToList();
+        var query = context.People
+            .AsQueryable()
+            .OrderBy(x => x.Id)
+            .Where(x => ids.Contains(x.Id));
+
+        return Map(query).ToListAsync();
     }
 
     public async Task<PersonModel> GetPersonAsync(PersonRequest request)

@@ -1,9 +1,14 @@
 ﻿namespace GenTree.Domain.Entities;
 
+public interface IPersonId
+{
+    public Guid Id { get; }
+}
+
 /// <summary>
 /// Человек
 /// </summary>
-public class Person
+public class Person : IPersonId
 {
     /// <summary>
     /// Идентификатор записи
