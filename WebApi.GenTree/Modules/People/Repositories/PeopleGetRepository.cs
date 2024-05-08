@@ -4,8 +4,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.GenTree.Modules.People.Repositories;
 
+/// <summary>
+/// Модель запроса человека
+/// </summary>
+/// <param name="Id">Идентификатор человека</param>
 public record PersonRequest(Guid Id);
+/// <summary>
+/// Модель запроса постраничной загрузки людей
+/// </summary>
+/// <param name="Page">Номер страницы</param>
+/// <param name="Count">Количество записей на странице</param>
 public record PeopleRequest(int Page, int Count);
+/// <summary>
+/// Информация о человеке
+/// </summary>
+/// <param name="Id">Идентификатор в системе</param>
+/// <param name="Given">Имя</param>
+/// <param name="Family">Фамилия</param>
 public record PersonModel(Guid Id, string Given, string Family);
 
 public interface IPeopleGetRepository

@@ -10,6 +10,9 @@ namespace WebApi.GenTree.Modules.Relations;
 /// <param name="Id"></param>
 public record PeopleByThirdLevelRequest(Guid Id);
 
+/// <summary>
+/// Запрос родственных связей
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 public class RelationsController

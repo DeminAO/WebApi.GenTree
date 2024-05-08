@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.GenTree.Modules.Relations.Repositories;
 
+/// <summary>
+/// Модель запроса на добавление родственной связи двух людей
+/// </summary>
+/// <param name="ChildId">Идентификатор ребенка</param>
+/// <param name="ParentId">Идентификатор родителя</param>
 public record RelationInsertRequest(Guid ChildId, Guid ParentId);
 
 public interface IRelationsInsertRepository

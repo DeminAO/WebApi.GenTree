@@ -4,7 +4,17 @@ using WebApi.GenTree.Modules.Relations.Repositories;
 
 namespace WebApi.GenTree.Modules.People.Repositories;
 
+/// <summary>
+/// Модель запроса на добавление человека
+/// </summary>
+/// <param name="Given">Имя</param>
+/// <param name="Family">Фамилия</param>
+/// <param name="ParentId">Идентификатор родителя</param>
 public record PersonInsertRequest(string Given, string Family, Guid? ParentId);
+/// <summary>
+/// Результат обработки запроса на добавление человека
+/// </summary>
+/// <param name="Id">Идентификатор человека в системе</param>
 public record PersonInsertResult(Guid Id);
 
 public interface IPersonInsertRepository
