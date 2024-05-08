@@ -1,10 +1,15 @@
 using GenTree.Domain;
 using Microsoft.EntityFrameworkCore;
+using WebApi.GenTree.Modules.People;
+using WebApi.GenTree.Modules.Relations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<GenTreeContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+PeopleModule.Register(builder.Services);
+RelationsModule.Register(builder.Services);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
