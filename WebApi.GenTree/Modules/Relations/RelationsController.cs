@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.GenTree.Modules.People.Repositories;
 using WebApi.GenTree.Modules.Relations.Repositories;
+using WebApi.GenTree.Validation;
 
 namespace WebApi.GenTree.Modules.Relations;
 
@@ -15,6 +16,7 @@ public record PeopleByThirdLevelRequest(Guid Id);
 /// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
+[ProducesResponseType<ErrorModel>(500)]
 public class RelationsController
 {
     /// <summary>
@@ -23,6 +25,7 @@ public class RelationsController
     /// <param name="request">Идентификатор прадеда</param>
     /// <returns></returns>
     [HttpPost]
+    [ProducesResponseType<ResultModel<List<PersonModel>>>(200)]
     public async Task<IEnumerable<PersonModel>> GetPeopleByThirdLevelAsync(
         [FromServices] IRelationsRepository repository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
@@ -38,6 +41,7 @@ public class RelationsController
     /// <param name="request">Идентификатор правнука</param>
     /// <returns></returns>
     [HttpPost]
+    [ProducesResponseType<ResultModel<PersonModel>>(200)]
     public async Task<PersonModel> GetPersonByThirdLevelAsync(
         [FromServices] IRelationsRepository relationsRepository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
@@ -53,6 +57,7 @@ public class RelationsController
     /// <param name="request">Идентификатор внука</param>
     /// <returns></returns>
     [HttpPost]
+    [ProducesResponseType<ResultModel<PersonInsertResult>>(200)]
     public async Task<PersonModel> GetPersonBySecondLevelAsync(
         [FromServices] IRelationsRepository relationsRepository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
