@@ -9,7 +9,7 @@ namespace WebApi.GenTree.Modules.Relations;
 /// Модель запроса данных по идентификатору
 /// </summary>
 /// <param name="Id"></param>
-public record PeopleByThirdLevelRequest(Guid Id);
+public record PeopleByLevelRequest(Guid Id);
 
 /// <summary>
 /// Запрос родственных связей
@@ -17,7 +17,7 @@ public record PeopleByThirdLevelRequest(Guid Id);
 [ApiController]
 [Route("[controller]/[action]")]
 [ProducesResponseType<ErrorModel>(500)]
-public class RelationsController
+public class RelationsController : ControllerBase
 {
     /// <summary>
     /// Запрос правнуков
@@ -26,13 +26,13 @@ public class RelationsController
     /// <returns></returns>
     [HttpPost]
     [ProducesResponseType<ResultModel<List<PersonModel>>>(200)]
-    public async Task<IEnumerable<PersonModel>> GetPeopleByThirdLevelAsync(
+    public async Task<ResultModel<IEnumerable<PersonModel>>> GetPeopleByThirdLevelAsync(
         [FromServices] IRelationsRepository repository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
-        [FromBody] PeopleByThirdLevelRequest request)
+        [FromBody] PeopleByLevelRequest request)
     {
         var personIds = await repository.GetChildrenByLevelAsync(new(request.Id, 3));
-        return await peopleGetRepository.GetPeopleAsync(personIds);
+        return new(await peopleGetRepository.GetPeopleAsync(personIds));
     }
     
     /// <summary>
@@ -42,13 +42,14 @@ public class RelationsController
     /// <returns></returns>
     [HttpPost]
     [ProducesResponseType<ResultModel<PersonModel>>(200)]
-    public async Task<PersonModel> GetPersonByThirdLevelAsync(
+    public async Task<ResultModel<PersonModel>> GetPersonByThirdLevelAsync(
         [FromServices] IRelationsRepository relationsRepository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
-        [FromBody] PeopleByThirdLevelRequest request)
+        [FromBody] PeopleByLevelRequest request)
     {
-        var personId = await relationsRepository.GetParentByLevelAsync(new(request.Id, Level: 3));
-        return await peopleGetRepository.GetPersonAsync(new(personId.Id));
+        var personIds = await relationsRepository.GetParentsByLevelAsync(new(request.Id, Level: 3));
+        var people = await peopleGetRepository.GetPeopleAsync(personIds.Take(1));
+        return new(people.FirstOrDefault());
     }
     
     /// <summary>
@@ -57,14 +58,15 @@ public class RelationsController
     /// <param name="request">Идентификатор внука</param>
     /// <returns></returns>
     [HttpPost]
-    [ProducesResponseType<ResultModel<PersonInsertResult>>(200)]
-    public async Task<PersonModel> GetPersonBySecondLevelAsync(
+    [ProducesResponseType<ResultModel<PersonModel>>(200)]
+    public async Task<ResultModel<PersonModel>> GetPersonBySecondLevelAsync(
         [FromServices] IRelationsRepository relationsRepository,
         [FromServices] IPeopleGetRepository peopleGetRepository,
-        [FromBody] PeopleByThirdLevelRequest request)
+        [FromBody] PeopleByLevelRequest request)
     {
-        var personId = await relationsRepository.GetParentByLevelAsync(new(request.Id, Level: 2));
-        return await peopleGetRepository.GetPersonAsync(new(personId.Id));
+        var personIds = await relationsRepository.GetParentsByLevelAsync(new(request.Id, Level: 2));
+        var people = await peopleGetRepository.GetPeopleAsync(personIds.Take(1));
+        return new(people.FirstOrDefault());
     }
 
 }

@@ -18,18 +18,18 @@ public record PersonId(Guid Id) : IPersonId;
 
 public interface IRelationsRepository
 {
-    public Task<PersonId> GetParentByLevelAsync(RelationRequest request);
+    public Task<List<PersonId>> GetParentsByLevelAsync(RelationRequest request);
     public Task<List<PersonId>> GetChildrenByLevelAsync(RelationRequest request);
 }
 public class RelationsRepository(GenTreeContext context) : IRelationsRepository
 {
-    public Task<PersonId> GetParentByLevelAsync(RelationRequest request)
+    public Task<List<PersonId>> GetParentsByLevelAsync(RelationRequest request)
     {
         return context.Relationships
             .Where(x => x.DownPersonId == request.Id)
             .Where(x => x.RelationLevel == request.Level)
             .Select(x => new PersonId(x.TopPersonId))
-            .FirstOrDefaultAsync();
+            .ToListAsync();
     }
 
     public Task<List<PersonId>> GetChildrenByLevelAsync(RelationRequest request)

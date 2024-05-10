@@ -10,7 +10,7 @@ namespace WebApi.GenTree.Modules.People;
 [ApiController]
 [Route("[controller]/[action]")]
 [ProducesResponseType<ErrorModel>(500)]
-public class PeopleController
+public class PeopleController : ControllerBase
 {
     /// <summary>
     /// Запрос постраничной загрузки людей
@@ -19,11 +19,11 @@ public class PeopleController
     /// <returns>Список людей</returns>
     [HttpPost]
     [ProducesResponseType<ResultModel<List<PersonModel>>>(200)]
-    public IAsyncEnumerable<PersonModel> GetPeopleAsync(
+    public async Task<ResultModel<List<PersonModel>>> GetPeopleAsync(
         [FromServices] IPeopleGetRepository repository,
         [FromBody] PeopleRequest request)
     {
-        return repository.GetPeopleAsync(request);
+        return new(await repository.GetPeopleAsync(request));
     }
 
     /// <summary>
@@ -33,10 +33,10 @@ public class PeopleController
     /// <returns>Идентификатор человека в системе</returns>
     [HttpPost]
     [ProducesResponseType<ResultModel<PersonInsertResult>>(200)]
-    public Task<PersonInsertResult> InsertPeopleAsync(
+    public async Task<ResultModel<PersonInsertResult>> InsertPeopleAsync(
         [FromServices] IPersonInsertRepository repository,
         [FromBody] PersonInsertRequest request)
     {
-        return repository.InsertAsync(request);
+        return new(await repository.InsertAsync(request));
     }
 }

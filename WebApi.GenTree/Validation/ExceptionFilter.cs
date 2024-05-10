@@ -7,7 +7,8 @@ namespace WebApi.GenTree.Validation;
 /// </summary>
 /// <param name="Data">Результат</param>
 /// <param name="Success">Флаг успешности выполнения запроса</param>
-public record ResultModel<T>(T Data, bool Success = true);
+/// <param name="Errors">Список описаний ошибок</param>
+public record ResultModel<T>(T Data, bool Success = true, string[] Errors = null);
 
 /// <summary>
 /// Модель ошибки

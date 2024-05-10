@@ -25,36 +25,34 @@ public record PersonModel(Guid Id, string Given, string Family);
 
 public interface IPeopleGetRepository
 {
-    public IAsyncEnumerable<PersonModel> GetPeopleAsync(PeopleRequest request);
-    public Task<PersonModel> GetPersonAsync(PersonRequest request);
-    public Task<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request);
+    public Task<List<PersonModel>> GetPeopleAsync(PeopleRequest request);
+    public ValueTask<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request);
 }
 public class PeopleGetRepository(GenTreeContext context) : IPeopleGetRepository
 {
-    public IAsyncEnumerable<PersonModel> GetPeopleAsync(PeopleRequest request)
+    public Task<List<PersonModel>> GetPeopleAsync(PeopleRequest request)
     {
         var query = context.People
             .AsQueryable()
             .OrderBy(x => x.Id)
             .Skip(request.Count * request.Page)
             .Take(request.Count);
-        return Map(query).AsAsyncEnumerable();
+        return Map(query).ToListAsync();
     }
 
-    public Task<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request)
+    public ValueTask<List<PersonModel>> GetPeopleAsync(IEnumerable<IPersonId> request)
     {
+        if (!request.Any())
+        {
+            return new([]);
+        }
         var ids = request.Select(x => x.Id).ToList();
         var query = context.People
             .AsQueryable()
             .OrderBy(x => x.Id)
             .Where(x => ids.Contains(x.Id));
 
-        return Map(query).ToListAsync();
-    }
-
-    public async Task<PersonModel> GetPersonAsync(PersonRequest request)
-    {
-        return await Map(context.People.Where(x => x.Id == request.Id)).FirstOrDefaultAsync();
+        return new(Map(query).ToListAsync());
     }
 
     static IQueryable<PersonModel> Map(IQueryable<Person> people) => people.Select(x => new PersonModel(x.Id, x.Given, x.Family));

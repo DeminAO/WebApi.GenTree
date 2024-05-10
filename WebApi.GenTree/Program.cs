@@ -1,105 +1,30 @@
-using FluentValidation.AspNetCore;
 using GenTree.Domain;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApi.GenTree.Modules.People;
 using WebApi.GenTree.Modules.Relations;
-using WebApi.GenTree.Validation;
 
-(string servicePath, WebApplicationBuilder builder) = ConfigureBuilder(args);
-
-// Add services to the container.
-builder.Services.AddDbContext<GenTreeContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-PeopleModule.Register(builder.Services);
-RelationsModule.Register(builder.Services);
-builder.Services.AddControllers();
-
-ConfigureValidation(builder.Services);
-ConfigureSwagger(builder.Services, servicePath);
-
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
+internal class Program
 {
-	using var context = scope.ServiceProvider.GetRequiredService<GenTreeContext>();
-	await context.Database.MigrateAsync();
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
-
-
-/// <summary>
-/// Инициализация сборщика приложения
-/// </summary>
-/// <param name="args">Аргументы запуска приложения</param>
-/// <returns></returns>
-static (string servicePath, WebApplicationBuilder builder) ConfigureBuilder(string[] args)
-{
-    string servicePath = AppDomain.CurrentDomain.BaseDirectory;
-
-    WebApplicationOptions options = new()
+    private static async Task Main(string[] args)
     {
-        ContentRootPath = servicePath,
-        Args = args
-    };
+        (string servicePath, WebApplicationBuilder builder) = ApplicationBuilder.ConfigureBuilder(args);
 
-    WebApplicationBuilder builder = WebApplication.CreateBuilder(options);
+        // Add services to the container.
+        builder.Services.AddDbContext<GenTreeContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    builder.Configuration
-        .SetBasePath(builder.Environment.ContentRootPath)
-        .AddJsonFile("appsettings.json", false, true)
-        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true)
-        .AddEnvironmentVariables();
+        PeopleModule.Register(builder.Services);
+        RelationsModule.Register(builder.Services);
 
-    return (servicePath, builder);
-}
-static void ConfigureSwagger(IServiceCollection services, string servicePath)
-{
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen(opt =>
-    {
-        Directory
-            .GetFiles(servicePath, "*.xml")
-            .ToList()
-            .ForEach(f => opt.IncludeXmlComments(f, true));
-    });
-}
-static void ConfigureValidation(IServiceCollection services)
-{
-    services.AddMvc(conf => conf.Filters.Add(typeof(ExceptionFilter)));
+        ApiBuilder.ConfigureApi(servicePath, builder.Services);
 
-    services
-        // регистрация валидации запросов
-        .AddFluentValidationAutoValidation()
-        // регистрация обработки результатов валидации
-        .Configure<ApiBehaviorOptions>(options =>
+        var app = ApplicationBuilder.BuildApp(args, builder);
+
+        using (var scope = app.Services.CreateScope())
         {
-            options.InvalidModelStateResponseFactory = c =>
-            {
-                // список ошибок валидации
-                var errors = c.ModelState.Values
-                    .Where(v => v.Errors.Any())
-                    .SelectMany(v => v.Errors)
-                    .Select(v => v.ErrorMessage)
-                    .Distinct()
-                    .ToArray();
+            using var context = scope.ServiceProvider.GetRequiredService<GenTreeContext>();
+            await context.Database.MigrateAsync();
+        }
 
-                // возврат 200 со списком ошибок
-                return new ObjectResult(new ErrorModel(errors));
-            };
-        });
+        app.Run();
+    }
 }
